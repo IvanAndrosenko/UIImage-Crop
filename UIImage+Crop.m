@@ -7,12 +7,16 @@
 //
 
 #import "UIImage+Crop.h"
-#define SCREEN_WIDTH 320.0f
+#define SCREEN_WIDTH [[ UIScreen mainScreen ] bounds ].size.width
+
 @implementation UIImage (Crop)
 
 -(UIImage *)cropImageWithRect:(CGRect)rect
 {
-    float kResize = self.size.width/SCREEN_WIDTH;
+    
+    NSLog(@"size %@", NSStringFromCGSize(self.size));
+    
+    float kResize = self.size.width/SCREEN_WIDTH * [UIScreen mainScreen].scale;
     
     CGRect cropRect = CGRectMake(rect.origin.x * kResize, rect.origin.y * kResize, rect.size.width * kResize, rect.size.height * kResize);
     CGImageRef imageRef = CGImageCreateWithImageInRect([self CGImage], cropRect);
@@ -22,22 +26,9 @@
     return cropImage;
 }
 
--(UIImage *)cropImageForLentaButtonsView:(CGSize)size
-{
-      float kResize = self.size.width/size.width;
-    
-    CGRect cropRect = CGRectMake(0,self.size.height - size.height * kResize, size.width * kResize, size.height * kResize);
-    CGImageRef imageRef = CGImageCreateWithImageInRect([self CGImage], cropRect);
-    UIImage *cropImage = [UIImage imageWithCGImage:imageRef];
-    CGImageRelease(imageRef);
-    
-    return cropImage;
-               
-}
-
 -(UIImage *)cropImageMiddle:(CGSize)size
 {
-    float kResize = self.size.width/size.width;
+    float kResize = self.size.width/size.width * [UIScreen mainScreen].scale;
     
     CGRect cropRect = CGRectMake(0,(self.size.height - size.height * kResize)/2, size.width * kResize, size.height * kResize);
 
@@ -54,8 +45,9 @@
     CGSize targetSize = CGSizeMake(CGImageGetWidth(imageRef), CGImageGetHeight(imageRef));
     
     //next function scale compensation for retina screen
-    if ([[UIScreen mainScreen] scale]==2) {
-        targetSize = CGSizeMake(targetSize.width/2, targetSize.height/2);
+    if ([UIScreen mainScreen].scale > 0)
+    {
+        targetSize = CGSizeMake(targetSize.width/[UIScreen mainScreen].scale, targetSize.height/[UIScreen mainScreen].scale);
     }
     
     return [self imageByScalingAndCroppingForSize:targetSize];
@@ -63,10 +55,7 @@
 
 - (UIImage*)imageByScalingAndCroppingForSize:(CGSize)targetSize
 {
-    //retina screen
-    if ([[UIScreen mainScreen] scale]==2) {
-        targetSize = CGSizeMake(targetSize.width*2, targetSize.height*2);
-    }
+    targetSize = CGSizeMake(targetSize.width * [UIScreen mainScreen].scale, targetSize.height * [UIScreen mainScreen].scale);
     
     UIImage *sourceImage = self;
     UIImage *newImage = nil;

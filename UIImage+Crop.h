@@ -10,7 +10,6 @@
 
 @interface UIImage (Crop)
 -(UIImage *)cropImageWithRect:(CGRect)rect;
--(UIImage *)cropImageForLentaButtonsView:(CGSize)size;
 -(UIImage *)cropImageMiddle:(CGSize)size;
 -(UIImage *)decompressedImage;
 
